@@ -19,8 +19,12 @@ ACCESS_TOKEN_SECRET = 'YOUR_ACCESS_TOKEN_SECRET'
 def main():
     base_hostname = 'your_blog.tumblr.com'  # blogname
     tag           = 'your_favorite_tag'     # tag   
-    rate          = 10                      # clowl rate(m)
-    rebloged      = []                      # rebloged picture URL
+    rate          = 20                          # clowl rate(m)
+    rebloged      = []                          # rebloged picture URL
+
+    # ignore list
+    ignoreList = "ignore.txt"
+    loadIgnoreList(ignoreList, rebloged)
 
     # log file
     fileName = base_hostname+'_' + str(datetime.now().strftime('%Y%m%d_%H%M%S')) +'.csv'
@@ -42,9 +46,12 @@ def main():
 
         reblog(fields, base_hostname, consumer, token, rebloged, logCSV)
 
+        saveIgnoreList(ignoreList, rebloged)
+
         # if the process takes longer than fileduration, make a new file.
         if(datetime.now() - startTime > fileDuration):
             logCSV.close()
+            os.system("mv "+filename+" log/")
             fileName = base_hostname+'_' + str(datetime.now().strftime('%Y%m%d_%H%M%S')) +'.csv'
             logCSV = codecs.open(fileName, 'w', 'utf-8')
             startTime = datetime.now()
@@ -53,6 +60,17 @@ def main():
 
     logCSV.close()
 
+def loadIgnoreList(ignoreList, rebloged):
+    fi = codecs.open(ignoreList, 'r', 'utf-8')
+    for line in fi:
+        rebloged.append(line.rstrip())
+    fi.close()
+
+def saveIgnoreList(ignoreList, rebloged):
+    fi = codecs.open(ignoreList, 'w', 'utf-8')
+    for item in rebloged:
+        fi.write(item + "\n")
+    fi.close()
 
 def getfieldsForTagged(tag, consumer, token):
     # for tag search
@@ -75,7 +93,7 @@ def getfieldsForTagged(tag, consumer, token):
 
 def  writeLog(fields, logCSV):
     for field in fields:
-        dataRow = datetime.now().strftime('%Y-%m-%d %H:%M:%S')+',' \
+        dataRow = datetime.now().strftime('%Y-%m-%d,%H:%M:%S')+',' \
                     +str(field['id'])+','+str(field['state'])+','  \
                     +str(field['tags'])+','+str(field['url'])+','  \
                     +str(field['date'])+'\n'
