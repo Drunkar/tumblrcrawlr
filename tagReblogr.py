@@ -18,7 +18,7 @@ ACCESS_TOKEN_SECRET = 'YOUR_ACCESS_TOKEN_SECRET'
 
 def main():
     base_hostname = 'your_blog.tumblr.com'  # blogname
-    tag           = 'your_favorite_tag'     # tag   
+    tag           = 'your_favorite_tag'     # tag
     rate          = 20                          # clowl rate(m)
     rebloged      = []                          # rebloged picture URL
 
@@ -51,7 +51,7 @@ def main():
         # if the process takes longer than fileduration, make a new file.
         if(datetime.now() - startTime > fileDuration):
             logCSV.close()
-            os.system("mv "+filename+" log/")
+            os.system("mv "+fileName+" log/")
             fileName = base_hostname+'_' + str(datetime.now().strftime('%Y%m%d_%H%M%S')) +'.csv'
             logCSV = codecs.open(fileName, 'w', 'utf-8')
             startTime = datetime.now()
@@ -82,7 +82,7 @@ def getfieldsForTagged(tag, consumer, token):
     resp, content = client.request(url, method='GET', body=urllib.urlencode(params))
     dsbd= json.loads(content)
     # print json.dumps(dsbd, indent=2)
-    
+
     # for tag search
     return [{'reblog_key': obj['reblog_key'], 'id': obj['id'], 'state': obj['state'],
              'tags': obj['tags'], 'url':obj['photos'][0]['original_size']['url'], 'date': obj['date']}
@@ -100,7 +100,7 @@ def  writeLog(fields, logCSV):
         logCSV.write(dataRow)
 
 def reblog(fields, base_hostname, consumer, token, rebloged, logCSV):
-    
+
     url = 'http://api.tumblr.com/v2/blog/'+base_hostname+'/post/reblog'
     client = oauth2.Client(consumer, token)
 
@@ -109,7 +109,7 @@ def reblog(fields, base_hostname, consumer, token, rebloged, logCSV):
             print field['url'], 'was rebloged.'
             continue
         else:
-            params = { 
+            params = {
                 'id': field['id'],
                 'reblog_key': field['reblog_key']
             }
